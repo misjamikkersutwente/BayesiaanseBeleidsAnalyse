@@ -1,5 +1,30 @@
-#+PROPERTY: header-args  :session misja :kernel pymc_env :async yes
-#+options: toc:nil num:nil
+% Created 2025-06-14 za 17:07
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{minted}
+\author{Jan Boone}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={Jan Boone},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={},
+ pdflang={English}}
+\begin{document}
 
 We consider a situation where the government wants to invest in a public good financed by an income tax. The cost of the project is 18k and the question is whether the tax raised by a nonlinear income tax schedule will be enough to cover the cost. We estimate the parameters of the (Pareto) income distribution and then see whether the expected tax income exceeds the cost.
 
@@ -10,7 +35,7 @@ Another advantage of Bayesian analysis is that one can do a scenario analysis, s
 We first generate a sample from the theoretical income distribution. With this sample of 50 individuals, we will estimate the parameters of our model.
 
 
-#+begin_src jupyter-python
+\begin{minted}[]{python}
 import numpy as np
 import pymc as pm
 from pymc import do, observe
@@ -36,62 +61,78 @@ with income_simulate:
 
 income_data = simulate.prior.income.values
 # income_data
-#+end_src
+\end{minted}
 
-#+RESULTS:
-: Sampling: [income]
+\phantomsection
+\label{}
+\begin{verbatim}
+Sampling: [income]
+\end{verbatim}
 
 
-Given the =income_data=  that we have, the following code block generates the posterior distribution of the parameters $\alpha,m$.
 
-#+begin_src jupyter-python
+Given the \texttt{income\_data}  that we have, the following code block generates the posterior distribution of the parameters \(\alpha,m\).
+
+\begin{minted}[]{python}
 model_inference = observe(model_income,\
                 {"income":income_data[0,0]})
 
 with model_inference:
     idata = pm.sample(progressbar=False)
 
-#+end_src
+\end{minted}
 
-#+RESULTS:
-: Initializing NUTS using jitter+adapt_diag...
-: Multiprocess sampling (4 chains in 4 jobs)
-: NUTS: [alpha, m]
-: Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
-: There were 3065 divergences after tuning. Increase `target_accept` or reparameterize.
-: The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
-: The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details
+\phantomsection
+\label{}
+\begin{verbatim}
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [alpha, m]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
+There were 3065 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
+The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details
+\end{verbatim}
 
-We can view the estimates and the values for =r_hat= (which are not great but not so relevant for our application).
 
-#+begin_src jupyter-python :display plain
+We can view the estimates and the values for \texttt{r\_hat} (which are not great but not so relevant for our application).
+
+\begin{minted}[]{python}
 import arviz as az
 headers = ['mean', 'sd', 'hdi_3%', 'hdi_97%',\
            'ess_bulk', 'r_hat']
 variables = ["m","alpha"]
 df_summary = az.summary(idata,var_names=variables)[headers]
 df_summary
-#+end_src
+\end{minted}
 
-#+RESULTS:
-:             mean       sd     hdi_3%    hdi_97%  ess_bulk  r_hat
-: m      29838.667  233.688  29405.822  30072.144     298.0   1.01
-: alpha      2.731    0.375      2.065      3.498     262.0   1.03
+\phantomsection
+\label{}
+\begin{verbatim}
+            mean       sd     hdi_3%    hdi_97%  ess_bulk  r_hat
+m      29838.667  233.688  29405.822  30072.144     298.0   1.01
+alpha      2.731    0.375      2.065      3.498     262.0   1.03
+\end{verbatim}
+
 
 
 Next we generate our posterior predictive distribution of income.
 
-#+begin_src jupyter-python
+\begin{minted}[]{python}
 idata_posterior_predictive = pm.sample_posterior_predictive(idata,model=model_inference,progressbar=False)
 posterior_predictive_incomes = idata_posterior_predictive.posterior_predictive.income.values
-#+end_src
+\end{minted}
 
-#+RESULTS:
-: Sampling: [income]
+\phantomsection
+\label{}
+\begin{verbatim}
+Sampling: [income]
+\end{verbatim}
+
 
 The following code block defines the nonlinear tax function. And we calculate the posterior distribution for the tax revenue.
 
-#+begin_src jupyter-python
+\begin{minted}[]{python}
 import pytensor
 import pytensor.tensor as pt
 
@@ -149,24 +190,34 @@ calculate_tax_3d = pytensor.function(inputs=[income_tensor_3d], outputs=tax_due_
 tax_income_per_head = calculate_tax_3d(posterior_predictive_incomes)
 
 tax_income_per_head.shape
-#+end_src
+\end{minted}
 
-#+RESULTS:
-| 4 | 1000 | 50 |
+\begin{table}[htbp]
+\label{}
+\centering
+\begin{tabular}{rrr}
+4 & 1000 & 50\\
+\end{tabular}
+\end{table}
 
 
 In a frequentist approach one can calculate the expected tax revenue. This expectation may (or may not) differ significantly from the target of 18k needed to finance the public good. Whether or not it does, what do we learn from this?
 
-#+begin_src jupyter-python
+\begin{minted}[]{python}
 tax_income_per_head.mean(axis=2).mean(), tax_income_per_head.mean(axis=2).std()
-#+end_src
+\end{minted}
 
-#+RESULTS:
-| 17824.886616071733 | 3251.493091037539 |
+\begin{table}[htbp]
+\label{}
+\centering
+\begin{tabular}{rr}
+17824.886616071733 & 3251.493091037539\\
+\end{tabular}
+\end{table}
 
 The Bayesian approach allows us to quantify the uncertainty. The following figure shows 4 different distributions of the tax revenue. This figure shows that whether or not the mean tax revenue is above or below 18k is hardly relevant.
 
-#+begin_src jupyter-python :file ./figures/average_tax_income_distributions.png
+\begin{minted}[]{python}
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -184,23 +235,30 @@ plt.xlabel("tax revenue per head")
 plt.suptitle('Four posterior distributions of tax revenue per head')
 plt.tight_layout();
 
-#+end_src
+\end{minted}
 
-#+RESULTS:
-[[file:./figures/average_tax_income_distributions.png]]
+\begin{center}
+\includegraphics[width=.9\linewidth]{./figures/average_tax_income_distributions.png}
+\label{}
+\end{center}
 
 
 With the Bayesian approach we can answer the question: how likely is it that tax revenue falls below the 18k threshold:
 
-#+begin_src jupyter-python :display plain
+\begin{minted}[]{python}
 threshold = 18000
 print(data.mean())
 print(np.mean(data < threshold))
-#+end_src
+\end{minted}
 
-#+RESULTS:
-: 17824.886616071733
-: 0.635
+\phantomsection
+\label{}
+\begin{verbatim}
+17824.886616071733
+0.635
+\end{verbatim}
+
 
 
 Also do a scenario analysis with different values for the threshold?
+\end{document}
