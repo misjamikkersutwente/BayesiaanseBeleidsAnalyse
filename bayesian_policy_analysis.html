@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-06-14 za 17:07 -->
+<!-- 2025-06-23 ma 17:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -229,7 +229,7 @@
 <body>
 <div id="content" class="content">
 <p>
-We consider a situation where the government wants to invest in a public good financed by an income tax. The cost of the project is 18k and the question is whether the tax raised by a nonlinear income tax schedule will be enough to cover the cost. We estimate the parameters of the (Pareto) income distribution and then see whether the expected tax income exceeds the cost.
+We consider a situation where the government wants to invest in a public good financed by an income tax. The cost of the project is 18k (per head) and the question is whether the tax raised by a nonlinear income tax schedule will be enough to cover the cost. We estimate the parameters of the (Pareto) income distribution and then see whether the expected tax income exceeds the cost.
 </p>
 
 <p>
@@ -298,15 +298,15 @@ Given the <code>income_data</code>  that we have, the following code block gener
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [alpha, m]
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
-There were 3065 divergences after tuning. Increase `target_accept` or reparameterize.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+There were 2808 divergences after tuning. Increase `target_accept` or reparameterize.
 The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
 The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details
 </pre>
 
 
 <p>
-We can view the estimates and the values for <code>r_hat</code> (which are not great but not so relevant for our application).
+We can view the estimates and the values for <code>r_hat</code>.
 </p>
 
 <div class="org-src-container">
@@ -321,14 +321,14 @@ df_summary
 
 <pre class="example">
             mean       sd     hdi_3%    hdi_97%  ess_bulk  r_hat
-m      29838.667  233.688  29405.822  30072.144     298.0   1.01
-alpha      2.731    0.375      2.065      3.498     262.0   1.03
+m      29933.492  239.609  29513.609  30166.580     310.0   1.01
+alpha      2.658    0.359      1.963      3.297     564.0   1.00
 </pre>
 
 
 
 <p>
-Next we generate our posterior predictive distribution of income.
+Next we generate our posterior predictive distribution of income. This is our posterior distribution of the income distribution (with the uncertainty of our parameters incorporated). In other words, this is our best guess of the income distribution that we will use to get an idea of the tax revenues that the government can expect.
 </p>
 
 <div class="org-src-container">
@@ -446,8 +446,8 @@ In a frequentist approach one can calculate the expected tax revenue. This expec
 </colgroup>
 <tbody>
 <tr>
-<td class="org-right">17824.886616071733</td>
-<td class="org-right">3251.493091037539</td>
+<td class="org-right">18336.024427944103</td>
+<td class="org-right">3549.055002477104</td>
 </tr>
 </tbody>
 </table>
@@ -478,7 +478,7 @@ plt.tight_layout();
 </div>
 
 
-<div id="orgd288f29" class="figure">
+<div id="orgb8f8bf8" class="figure">
 <p><img src="./figures/average_tax_income_distributions.png" alt="average_tax_income_distributions.png" />
 </p>
 </div>
@@ -496,19 +496,108 @@ With the Bayesian approach we can answer the question: how likely is it that tax
 </div>
 
 <pre class="example">
-17824.886616071733
-0.635
+18336.024427944103
+0.57575
 </pre>
 
 
 
 <p>
-Also do a scenario analysis with different values for the threshold?
+We can make a graph to show how the probability of earning enough tax revenues varies with the top tax rate that we use.
 </p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> pytensor
+<span style="color: #531ab6;">import</span> pytensor.tensor <span style="color: #531ab6;">as</span> pt
+<span style="color: #531ab6;">import</span> numpy <span style="color: #531ab6;">as</span> np
+
+<span style="color: #531ab6;">def</span> <span style="color: #721045;">calculate_revenue_for_top_rates</span>(income_tensor, top_rates_var, thresholds, base_rates):
+    <span style="color: #2a5045;">"""</span>
+<span style="color: #2a5045;">    Calculates the total tax revenue for a tensor of incomes across a vector of</span>
+<span style="color: #2a5045;">    variable top tax rates.</span>
+<span style="color: #2a5045;">    """</span>
+    <span style="color: #005e8b;">t1</span>, <span style="color: #005e8b;">t2</span> = thresholds
+    <span style="color: #005e8b;">r1</span>, <span style="color: #005e8b;">r2</span> = base_rates
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">--- Broadcasting ---</span>
+    <span style="color: #005e8b;">income</span> = income_tensor.dimshuffle(<span style="color: #3548cf;">'x'</span>, 0, 1, 2)
+    <span style="color: #005e8b;">top_rates_reshaped</span> = top_rates_var.dimshuffle(0, <span style="color: #3548cf;">'x'</span>, <span style="color: #3548cf;">'x'</span>, <span style="color: #3548cf;">'x'</span>)
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">--- Tax Calculation with Broadcasting ---</span>
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the first bracket. This part is constant for all top rates.</span>
+    <span style="color: #005e8b;">tax</span> = pt.minimum(income, t1) * r1
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the second bracket. Also constant.</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, pt.minimum(income, t2) - t1) * r2
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the third bracket. This is where the broadcasting happens.</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, income - t2) * top_rates_reshaped
+
+    <span style="color: #531ab6;">return</span> tax
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 1: Define symbolic tensors ---</span>
+
+<span style="color: #005e8b;">income_tensor_3d</span> = pt.dtensor3(<span style="color: #3548cf;">'income_3d'</span>)
+<span style="color: #595959;"># </span><span style="color: #595959;">A vector for the variable top tax rates</span>
+<span style="color: #005e8b;">top_rates_vector</span> = pt.dvector(<span style="color: #3548cf;">'top_rates'</span>)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 2: Define fixed and variable parameters ---</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Fixed parameters</span>
+<span style="color: #005e8b;">thresholds</span> = (38441, 76817)
+<span style="color: #005e8b;">base_rates</span> = (0.3582, 0.3748) <span style="color: #595959;"># </span><span style="color: #595959;">r1 and r2</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Variable parameter: A range of top tax rates (r3) to test</span>
+<span style="color: #005e8b;">top_rates_range</span> = np.linspace(0.45, 0.95, num=20) <span style="color: #595959;"># </span><span style="color: #595959;">Test 20 rates from 45% to 95%</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 3: Build the computation graph ---</span>
+<span style="color: #005e8b;">revenue_graph</span> = calculate_revenue_for_top_rates(
+    income_tensor_3d,
+    top_rates_vector,
+    thresholds,
+    base_rates
+)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 4: Compile the graph into a callable Python function ---</span>
+<span style="color: #005e8b;">calculate_revenue</span> = pytensor.function(
+    inputs=[income_tensor_3d, top_rates_vector],
+    outputs=revenue_graph
+)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Use the compiled function to calculate the revenues</span>
+<span style="color: #005e8b;">calculated_revenues</span> = calculate_revenue(posterior_predictive_incomes, top_rates_range)
+
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #005e8b;">data</span> = calculated_revenues.mean(axis=3)
+<span style="color: #005e8b;">probabilities</span> = np.mean(data &gt;= threshold,axis=(1,2))
+</pre>
+</div>
+
+<p>
+The following figure shows how the probability of being able to finance the public good varies with the top tax rate. The higher this tax rate, the higher the probability that we generate enough tax revenues to cover the public good.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python">plt.plot(top_rates_range,probabilities)
+plt.xlabel(<span style="color: #3548cf;">'top tax rate'</span>)
+plt.ylabel(<span style="color: #3548cf;">'probability'</span>)
+plt.title(<span style="color: #3548cf;">'Probability that enough tax revenue is raised to pay for public good'</span>);
+</pre>
+</div>
+
+
+<div id="org4ab058a" class="figure">
+<p><img src="./figures/probabilities.png" alt="probabilities.png" />
+</p>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Jan Boone</p>
-<p class="date">Created: 2025-06-14 za 17:07</p>
+<p class="date">Created: 2025-06-23 ma 17:46</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
