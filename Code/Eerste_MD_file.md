@@ -139,4 +139,45 @@ nieuwe prior + data = nieuwere prior
 ## In de praktijk: onzekerheid over beleidsanalyse
 
 - de onzekerheid over de schatting van coefficienten vertaalt zich in onzekerheid van beleidsrelevante keuzes
-- 
+- een voorbeeld:
+  - de overheid wil een publiek goed van 18k (per capita) financieren met inkomensbelasting
+  - er is belasting systeem met 3 schuiven en een oplopende marginale belasting tarief
+  - wij schatten de (Pareto) verdeling van inkomens
+  - de onzekerheid van de schatting van deze parameters bepaalt of het lukt om het publieke goed te financieren
+  - dit is een niet lineare transformatie van de onzekerheid, frequentisme is hier niet goed in
+
+## Simulatie
+
+- we hebben sample gegenereerd van een Pareto inkomens verdeling
+- met sample hebben we de parameters van deze verdeling geschat
+- deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
+- posterior verdeling: $p(\alpha,m|data)$
+- het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
+
+## Onzekerheid
+
+- voor een geven $\alpha, m$, is er een belasting opbrengst (met de niet lineare belasting functie)
+- voor 4000 $\alpha, m$ is er een verdeling van deze belasting opbrengt
+
+![verdeling belasting opbrengst](../figures/average_tax_income_distribution.png)
+
+## Significantie
+
+- stel de verwachte belasting opbrengst is 17k (per capita)
+- is dit significant verschil met benchmark 18k?
+- is helemaal niet relevant voor beleidsanalyse
+- Bayesiaan: verwachte belasting opbrengst is 18,336k
+- kans dat de threshold niet gehaald wordt is 58%
+
+## Wat is een goede keuze voor het top marginal tarief
+
+![kans dat de benchmark gehaald wordt](../figure/probabilities.png)
+
+
+## andere voorbeelden
+
+- arbeidsaanbod elasticteit: totale belasting opbrengsten als functie van marginal tarief inkomsten belasting
+- eigen risico elasticeit: total zorg uitgaven
+- vraagelasticiteit NS: prijzen treinkaartjes, hoeveel autos op de weg
+- onzekerheid over de schattingen die niet triviaal vertaald in onzekerheid over beleidsuitkomsten
+- geintegreerde schattingsmethod en scenario analyse
