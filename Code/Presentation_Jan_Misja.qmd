@@ -1,0 +1,535 @@
+---
+title: "Bayesiaanse Beleidsanalyse"
+subtitle: "Iets grappigs te verzinnen"
+date: today
+institute: "Tilburg University and University of Twente"
+author: "Jan Boone & Misja Mikkers"
+date-format: long
+lang: nl
+format:
+  revealjs:
+    logo: logo.png
+    
+    slide-number: c/t #< collapsed/total
+    self-contained: true
+    editor: visual
+    footer: "Jan Boone & Misja Mikkers — Bayesiaanse Beleidsanalyse"
+    
+bibliography: references.bib
+editor: visual
+css: custom.css  
+---
+
+## Inleiding
+
+```{r}
+library(tidyverse)  # For data manipulation
+library(ggforce)  # For ellipse
+library(dagitty) # voor DAGS
+library(ggdag) # voor mooiere DAGS
+```
+
+## Quiz: Hoe interpreteer jij waarschijnlijkheid?
+
+::: {style="font-size: 0.8em;"}
+We starten met een korte quiz (gebaseerd op @johnson2022bayes) met vier vragen om te ontdekken hoe jij naar waarschijnlijkheid kijkt.
+
+**Instructies voor deelnemers**
+
+-   Lees iedere vraag zorgvuldig.
+-   Bespreek je antwoorden kort met je buurvrouw of man.
+-   Noteer je antwoorden (A, B of C) op papier.
+-   We bespreken de antwoorden en de achterliggende gedachten plenair na de quiz.
+:::
+
+## Vraag 1
+
+::: {style="font-size: 0.8em;"}
+Bij het opgooien van een eerlijke munt zeggen we dat de kans op ‘kop’ 0,5 is. Hoe interpreteer jij deze kans?
+
+A)  Als ik de munt heel vaak opgooi, komt ongeveer 50% kop.\
+B)  Kop en munt zijn nu even plausibel.\
+C)  Beide interpretaties (A en B) zijn logisch.
+:::
+
+::: notes
+**notes**
+
+Deze vraag laat mooi het verschil zien tussen de Frequentistische en Bayesiaanse interpretatie:
+
+-   A geeft de Frequentistische uitleg: kans als lange termijn frequentie.
+-   B past beter bij de Bayesiaanse uitleg: kans als plausibiliteit gegeven de kennis nu.
+-   C laat zien dat je beide benaderingen logisch vindt.
+
+Later gebruiken we deze interpretaties om de verschillende manieren van omgaan met onzekerheid uit te leggen.
+:::
+
+## Vraag 2
+
+::: {style="font-size: 0.8em;"}
+Elf dagen voor de verkiezingen gaf FiveThirtyEight Trump een kans van 51% om te winnen. Hoe interpreteer jij deze kans?
+
+A)  Als we de verkiezingen 100 keer zouden houden, wint Trump 51 keer.\
+B)  Trump heeft iets meer kans om te winnen dan om te verliezen.\
+C)  Dit slaat nergens op: Trump wint of verliest, de kans is 0 of 1.
+:::
+
+::: notes
+Deze vraag laat zien waarom een Frequentistische interpretatie soms onnatuurlijk aanvoelt:
+
+-   A is Frequentistisch gedacht: kans als herhaalbaar experiment.
+-   B is typisch Bayesiaans: kans als mate van overtuiging.
+-   C wijst kansdenken helemaal af, vanuit een deterministische blik.
+:::
+
+## Vraag 3
+
+::: {style="font-size: 0.8em;"}
+We laten 2 statements zien:
+
+1.  Tessa zegt dat ze elk liedje van Taylor Swift binnen een paar tonen kan herkennen. Ze wordt getest: 7 liedjes, 7 keer goed.
+
+2.  Paul de Octopus voorspelde in 2010 de uitslag van alle 7 WK-wedstrijden van Duitsland correct.
+
+Wat denk jij?
+
+A)  Ik vertrouw meer op Tessa’s claim dan op die van Paul.\
+B)  Het bewijs voor Tessa en Paul is even sterk.
+:::
+
+::: notes
+Frequentistisch kijk je alleen naar het succespercentage: beiden 7 uit 7. Bayesiaans weeg je ook mee wat je vooraf gelooft: mensen herkennen liedjes best vaak, maar een octopus die voetbalwedstrijden voorspelt? Onwaarschijnlijk.
+
+Deze vraag laat zien waarom ‘priors’ belangrijk zijn in Bayesiaans redeneren.
+:::
+
+## Vraag 4
+
+::: {style="font-size: 0.8em;"}
+Een arts zegt dat je positief hebt getest op een zeldzame ziekte. Wat is de belangrijkste vraag om te stellen?
+
+A)  Wat is de kans dat ik écht ziek ben?\
+B)  Wat is de kans dat ik een positieve test krijg als ik níet ziek ben?
+:::
+
+::: notes
+Hier draait het om een klassiek probleem in medische statistiek:
+
+-   A vraagt naar de *"post test kans"* — de kans dat je echt ziek bent gegeven de positieve test (positieve predictieve waarde).
+-   B vraagt naar het *vals-positiefpercentage* — kans op een fout-positieve test bij gezonde mensen.
+
+Beide perspectieven zijn belangrijk, maar A is de vraag die je écht wil stellen. Hier biedt de formule van Bayes het antwoord: we updaten onze overtuiging op basis van de test (data) en de zeldzaamheid van de ziekte (prior.
+
+We kunnen dit eventueel visueel laten zien? [zoiets?](https://www.youtube.com/watch?v=HZGCoVF3YvM)
+:::
+
+## Tellen van je score
+
+::: {style="font-size: 0.8em;"}
+Tel je punten op:
+
+| Vraag | A (punten) | B (punten) | C (punten) |
+|-------|------------|------------|------------|
+| 1     | 1          | 3          | 2          |
+| 2     | 1          | 3          | 1          |
+| 3     | 3          | 1          |            |
+| 4     | 3          | 1          |            |
+
+**Interpretatie van je score**
+
+-   4–5 punten: Je denkt nu vooral Frequentistisch.
+-   6–8 punten: Je ziet sterke kanten in beide benaderingen.
+-   9–12 punten: Je neigt sterk naar het Bayesiaanse denken.
+:::
+
+## Frequentistisch versus Bayesiaans: de belangrijkste verschillen
+
+::: {style="font-size: 0.8em;"}
+| Aspect          | Frequentistisch              | Bayesiaans                    |
+|------------------|--------------------------|----------------------------|
+| Kans (P)        | Lange termijn frequentie     | Geloofsgraad / plausibiliteit |
+| Focus           | Variabiliteit van data       | Onzekerheid over uitkomsten   |
+| Informatiebron  | Data                         | Data + voorkennis (‘priors’)  |
+| Wat je berekent | $P(\text{data | hypothese})$ | $P(\text{hypothese | data})$  |
+:::
+
+::: notes
+**Uitleg van de tabel**:
+
+-   **Kans (P)**:
+    -   Frequentisten zien kans als herhaalde uitkomsten in de lange termijn.
+    -   Bayesians zien kans als een maat van hoe plausibel iets is, gegeven wat je weet.
+-   **Focus**:
+    -   Frequentisten kijken naar de spreiding (variabiliteit) van data.
+    -   Bayesians kijken naar onzekerheid en passen kennis aan na nieuwe data.
+-   **Informatiebron**:
+    -   Frequentisten baseren zich puur op data.
+    -   Bayesians combineren data met bestaande kennis
+-   **Wat je berekent**:
+    -   Frequentisten berekenen: hoe waarschijnlijk is deze data als de hypothese klopt?
+    -   Bayesians berekenen: hoe waarschijnlijk is de hypothese gezien de data die we hebben?
+:::
+
+# Bayesian Learning
+
+## Bayesian Learning
+
+```{r}
+
+ggplot() +
+  annotate("text", x = 20, y = 10, label = "Prior belief", size = 5) +
+  geom_ellipse(aes(x0 = 20, y0 = 10, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  annotate("text", x = 50, y = 10, label = "Data", size = 5) +
+  geom_ellipse(aes(x0 = 50, y0 = 10, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  annotate("text", x = 35, y = 40, label = "Updated belief", size = 5) +
+  geom_ellipse(aes(x0 = 35, y0 = 40, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  annotate("text", x = 65, y = 40, label = "Data", size = 5) +
+  geom_ellipse(aes(x0 = 65, y0 = 40, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  annotate("text", x = 50, y = 70, label = "Updated belief", size = 5) +
+  geom_ellipse(aes(x0 = 50, y0 = 70, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  annotate("text", x = 80, y = 70, label = "Data", size = 5) +
+  geom_ellipse(aes(x0 = 80, y0 = 70, a = 13, b = 5, angle = 0), fill = "blue", alpha = 0.2) +
+  geom_segment(aes(x = 20, y = 15, xend = 33, yend = 34), lineend = "round", arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+  geom_segment(aes(x = 50, y = 15, xend = 37, yend = 34), lineend = "round", arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+  geom_segment(aes(x = 35, y = 45, xend = 48, yend = 64), lineend = "round", arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+  geom_segment(aes(x = 65, y = 45, xend = 52, yend = 64), lineend = "round", arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+  geom_segment(aes(x = 50, y = 75, xend = 63, yend = 94), lineend = "round", linetype = "dashed",  arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+   geom_segment(aes(x = 80, y = 75, xend = 67, yend = 94), lineend = "round", linetype = "dashed",  arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+  xlim(0, 100) +
+  ylim(0, 100) +
+  theme_void() +
+  labs(caption = "adapted from Johnson et al. (2022)")
+
+```
+
+## Eerste Bayesiaanse analyse: het DGP
+
+```{r}
+lengtedag1 <- dagitty('dag {
+Lengte [outcome, pos = "1,0"]
+Geslacht [exposure, pos = "0,1"]
+Onbekend [unobserved, pos = "1,1"] 
+
+Geslacht -> Lengte
+Onbekend -> Lengte
+
+}')
+
+lengtedag <- tidy_dagitty(lengtedag1)
+
+lengtedag[["data"]] <- lengtedag[["data"]] %>%
+  mutate(Kleur = as.factor(c(1, 2, 3)))
+
+cols <- c("1" = "#f00000", "2" = "#a8862d", "3" = "#00bfff")
+
+ggdag(lengtedag) + 
+   geom_dag_point(aes(color = Kleur)) +
+  geom_dag_text(col = "black") +
+  theme_void() +
+  theme(
+  panel.background = element_rect(fill = "white",
+                                colour = "white",
+                                linewidth = 0.5, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white")
+  ) +
+ xlim(-0.5,2.5) +
+ ylim(-0.5,1.5) + 
+  theme(legend.position = "none") +
+  scale_color_manual(values = cols)
+
+
+```
+
+## Eerste Bayesiaanse analyse
+
+```{r eerste analyse}
+
+set.seed(123)
+
+df_l <- tibble(Mannen = rnorm(n = 100000, mean = 181, sd = 12),
+              Vrouwen = rnorm(n = 100000, mean = 167, sd = 10)) %>%
+  pivot_longer(cols = 1:2, names_to = "Geslacht", values_to = "Lengte")
+
+df_l$Geslacht <- factor(df_l$Geslacht, levels = c("Mannen", "Vrouwen"))
+
+
+summ_df_l <- df_l %>%
+  group_by(Geslacht) %>%
+  summarise(Gemiddelde = round(mean(Lengte),1))
+
+ggplot() +
+  geom_histogram(data = df_l, aes(x = Lengte, fill = Geslacht), alpha = 0.5, color = "black") +
+  geom_vline(data = summ_df_l, aes(xintercept = Gemiddelde, color = Geslacht), linetype = "dashed", show.legend = FALSE) +
+  geom_text(data = summ_df_l, aes(x = Gemiddelde + 5, y = 15000, label = Gemiddelde, color = Geslacht), show.legend = FALSE, size = 3) +
+  theme_bw() +
+  scale_fill_manual(values = c("Mannen" = "steelblue4", 
+                               "Vrouwen" = "firebrick")) +
+  scale_color_manual(values = c("Mannen" = "steelblue4", 
+                               "Vrouwen" = "firebrick")) +
+  labs(x = "Lengte in centimeters", fill = " ", y = "Count")  +
+  facet_wrap(~ Geslacht, ncol = 1)
+  
+
+
+
+
+
+```
+
+## Schatting model met veel data en strakke prior
+
+```{r}
+
+fullrun <- 0
+
+
+Formula <- Lengte ~ 0 + Intercept + Geslacht
+    
+prior1 <- c(set_prior("normal(175, 20)", class = "b", coef = "Intercept"),
+            set_prior("normal(0,1)", class = "b", coef = "GeslachtVrouwen"))    # idioot strakke prior om te laten zien dat de prior wordt verzwolgen door de data. Door prior vermoedelijk wel iets te lage schatting verschil
+
+if(fullrun){
+  
+
+model_l <- brm(
+            formula = Formula,
+            prior = prior1,
+            data   = df_l,
+            warmup = 500, 
+            iter   = 1500, 
+            chains = 4, 
+            init  = "random",
+            cores  = 2,
+            seed = 123,
+            silent = TRUE)
+
+saveRDS(model_l, "model_l.rds")
+} else {
+ model_l <- readRDS("model_l.rds")}
+
+
+```
+
+```{r}
+
+samples_l <- tidy_draws(model_l, "^b") %>%
+  dplyr::select(starts_with("b_")) %>%
+  dplyr::select(Vrouwen = b_GeslachtVrouwen) 
+  
+ggplot() +
+  geom_density(data = samples_l, aes(x = Vrouwen), 
+               fill = "firebrick", alpha = 0.5) +
+  geom_vline(xintercept = 167 - 181, color = "firebrick", linetype = "dashed") +
+  theme_bw() +
+  expand_limits(x = c(0, -20)) +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "") +
+  annotate(geom = "text", x = -5, y = 7, 
+           label = "n = 200.000\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)")
+
+ 
+
+
+
+```
+
+## Nu zelfde schatting met heel beperkte data!
+
+```{r eerste analyse beperkte sample}
+
+set.seed(123)
+
+df_la <- tibble(Mannen = rnorm(n = 10, mean = 181, sd = 12),
+              Vrouwen = rnorm(n = 10, mean = 167, sd = 10)) %>%
+  pivot_longer(cols = 1:2, names_to = "Geslacht", values_to = "Lengte")
+
+df_la$Geslacht <- factor(df_la$Geslacht, levels = c("Mannen", "Vrouwen"))
+
+summ_df_la <- df_la %>%
+  group_by(Geslacht) %>%
+  summarise(Gemiddelde = round(mean(Lengte),1))
+
+ggplot() +
+  geom_histogram(data = df_la, aes(x = Lengte, fill = Geslacht), alpha = 0.5, color = "black", bins = 4) +
+  geom_vline(data = summ_df_la, aes(xintercept = Gemiddelde, color = Geslacht), linetype = "dashed", show.legend = FALSE) +
+   geom_text(data = summ_df_la, aes(x = Gemiddelde + 5, y = 9, label = Gemiddelde, color = Geslacht), show.legend = FALSE, size = 3) +
+  theme_bw() +
+  scale_fill_manual(values = c("Mannen" = "steelblue4", 
+                               "Vrouwen" = "firebrick")) +
+  scale_color_manual(values = c("Mannen" = "steelblue4", 
+                               "Vrouwen" = "firebrick")) +
+  labs(x = "Lengte in centimeters", fill = " ", y = "Count") +
+  facet_wrap(~ Geslacht, ncol = 1)
+
+
+
+
+
+```
+
+## Resultaat
+
+```{r}
+fullrun <- 0
+
+
+Formula <- Lengte ~ 0 + Intercept + Geslacht
+    
+prior1 <- c(set_prior("normal(175, 20)", class = "b", coef = "Intercept"),
+            set_prior("normal(0,1)", class = "b", coef = "GeslachtVrouwen"))    
+
+if(fullrun){
+  
+
+model_la <- brm(
+            formula = Formula,
+            prior = prior1,
+            data   = df_la,
+            warmup = 500, 
+            iter   = 1500, 
+            chains = 4, 
+            init  = "random",
+            cores  = 4,
+            seed = 123,
+            silent = TRUE)
+
+saveRDS(model_la, "model_la.rds")
+} else {
+ model_la <- readRDS("model_la.rds")}
+
+
+```
+
+```{r}
+
+samples_la <- tidy_draws(model_la, "^b") %>%
+  dplyr::select(starts_with("b_")) %>%
+  dplyr::select(Vrouwen = b_GeslachtVrouwen) 
+  
+ggplot() +
+  geom_density(data = samples_la, aes(x = Vrouwen), 
+               fill = "firebrick", alpha = 0.5) +
+  geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
+  theme_bw() +
+    expand_limits(x = c(0, -20)) +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Strakke prior en weinig data") +
+  annotate(geom = "text", x = -5, y = 0.3, 
+           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)")
+
+
+ 
+
+
+
+```
+
+## Schatting model met kleine sample size en betere prior
+
+```{r}
+fullrun <- 0
+
+
+Formula <- Lengte ~ 0 + Intercept + Geslacht
+    
+prior1 <- c(set_prior("normal(175, 20)", class = "b", coef = "Intercept"),
+            set_prior("normal(-10,5)", class = "b", coef = "GeslachtVrouwen"))    
+
+if(fullrun){
+  
+
+model_lb <- brm(
+            formula = Formula,
+            prior = prior1,
+            data   = df_la,
+            warmup = 500, 
+            iter   = 1500, 
+            chains = 4, 
+            init  = "random",
+            cores  = 2,
+            seed = 123,
+            silent = TRUE)
+
+saveRDS(model_lb, "model_lb.rds")
+} else {
+ model_lb <- readRDS("model_lb.rds")}
+
+
+```
+
+```{r}
+
+samples_lb <- tidy_draws(model_lb, "^b") %>%
+  dplyr::select(starts_with("b_")) %>%
+  dplyr::select(Vrouwen = b_GeslachtVrouwen) 
+  
+ggplot() +
+  geom_density(data = samples_lb, aes(x = Vrouwen), 
+               fill = "firebrick", alpha = 0.5) +
+  geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
+  theme_bw() +
+   expand_limits(x = c(0, -20)) +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Goede prior en veel data") +
+  annotate(geom = "text", x = -2.5, y = 0.1, 
+           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(-10,5)")
+
+
+ 
+
+
+
+```
+
+
+
+# Een beleidsvoorbeeld
+
+## In de praktijk: onzekerheid over beleidsanalyse
+
+::: {style="font-size: 0.7em;"}
+-   de onzekerheid over de schatting van coefficienten vertaalt zich in onzekerheid van beleidsrelevante keuzes
+-   een voorbeeld:
+    -   de overheid wil een publiek goed van 18k (per capita) financieren met inkomensbelasting
+    -   er is belasting systeem met 3 schuiven en een oplopende marginale belasting tarief
+    -   wij schatten de (Pareto) verdeling van inkomens
+    -   de onzekerheid van de schatting van deze parameters bepaalt of het lukt om het publieke goed te financieren
+    -   dit is een niet lineare transformatie van de onzekerheid, frequentisme is hier niet goed in
+:::
+
+## Simulatie
+
+-   we hebben sample gegenereerd van een Pareto inkomens verdeling
+-   met sample hebben we de parameters van deze verdeling geschat
+-   deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
+-   posterior verdeling: $p(\alpha,m|data)$
+-   het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
+
+## Onzekerheid
+
+-   voor een geven $\alpha, m$, is er een belasting opbrengst (met de niet lineare belasting functie)
+-   voor 4000 $\alpha, m$ is er een verdeling van deze belasting opbrengt
+
+![verdeling belasting opbrengst](images/average_tax_income_distributions.png){fig-align="center"}
+
+## Significantie
+
+-   stel de verwachte belasting opbrengst is 17k (per capita)
+-   is dit significant verschil met benchmark 18k?
+-   is helemaal niet relevant voor beleidsanalyse
+-   Bayesiaan: verwachte belasting opbrengst is 18,336k
+-   kans dat de threshold niet gehaald wordt is 58%
+
+## Wat is een goede keuze voor het top marginal tarief
+
+![kans dat de benchmark gehaald wordt](images/probabilities.png)
+
+## andere voorbeelden
+
+-   arbeidsaanbod elasticteit: totale belasting opbrengsten als functie van marginal tarief inkomsten belasting
+-   eigen risico elasticeit: total zorg uitgaven
+-   vraagelasticiteit NS: prijzen treinkaartjes, hoeveel autos op de weg
+-   onzekerheid over de schattingen die niet triviaal vertaald in onzekerheid over beleidsuitkomsten
+-   geintegreerde schattingsmethod en scenario analyse
+
+## Literatuur
