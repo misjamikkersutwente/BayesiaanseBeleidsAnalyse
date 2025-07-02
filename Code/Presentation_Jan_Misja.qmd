@@ -27,6 +27,18 @@ library(tidyverse)  # For data manipulation
 library(ggforce)  # For ellipse
 library(dagitty) # voor DAGS
 library(ggdag) # voor mooiere DAGS
+library(brms) # bayesian analyse
+library(broom) # voor tidy regressie resultaten
+library(broom.mixed) # broom voor brms
+library(tidybayes) # voor extracting samples
+
+options(scipen = 9999) # Disable scientific notation
+
+# Replicatie analyse Jan in R
+
+library(VGAM) # voor pareto verdeling
+
+
 ```
 
 ## Quiz: Hoe interpreteer jij waarschijnlijkheid?
@@ -202,6 +214,10 @@ ggplot() +
 
 ```
 
+## Bayesian Learning
+
+![](images/Bayes.png){fig-align="center"}
+
 ## Eerste Bayesiaanse analyse: het DGP
 
 ```{r}
@@ -249,12 +265,13 @@ ggdag(lengtedag) +
 
 set.seed(123)
 
-df_l <- tibble(Mannen = rnorm(n = 100000, mean = 181, sd = 12),
-              Vrouwen = rnorm(n = 100000, mean = 167, sd = 10)) %>%
-  pivot_longer(cols = 1:2, names_to = "Geslacht", values_to = "Lengte")
-
-df_l$Geslacht <- factor(df_l$Geslacht, levels = c("Mannen", "Vrouwen"))
-
+df_l <- tibble(
+  persoon_id = 1:100000,
+  Mannen = rnorm(n = 100000, mean = 181, sd = 12),
+  Vrouwen = rnorm(n = 100000, mean = 167, sd = 10)
+) %>%
+  pivot_longer(cols = c(Mannen, Vrouwen), names_to = "Geslacht", values_to = "Lengte") %>%
+  mutate(Geslacht = factor(Geslacht, levels = c("Mannen", "Vrouwen")))
 
 summ_df_l <- df_l %>%
   group_by(Geslacht) %>%
@@ -278,6 +295,8 @@ ggplot() +
 
 
 ```
+
+
 
 ## Schatting model met veel data en strakke prior
 
@@ -315,22 +334,25 @@ saveRDS(model_l, "model_l.rds")
 
 ```{r}
 
+## ik heb geprobeerd de prior en de data te laten zien, maar dat lukt niet echt goed omdat de sitributie van de data breed is en daarmee niet zichtbaar is op de y-as.
+
+# posteror samples
 samples_l <- tidy_draws(model_l, "^b") %>%
   dplyr::select(starts_with("b_")) %>%
-  dplyr::select(Vrouwen = b_GeslachtVrouwen) 
-  
+  dplyr::select(Vrouwen = b_GeslachtVrouwen)  
+
+
 ggplot() +
   geom_density(data = samples_l, aes(x = Vrouwen), 
                fill = "firebrick", alpha = 0.5) +
   geom_vline(xintercept = 167 - 181, color = "firebrick", linetype = "dashed") +
   theme_bw() +
   expand_limits(x = c(0, -20)) +
-  labs(x = "Verschil tussen mannen en vrouwen", title = "") +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "model met veel data en strakke prior", y = "Density") +
   annotate(geom = "text", x = -5, y = 7, 
            label = "n = 200.000\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)")
 
  
-
 
 
 ```
@@ -414,9 +436,10 @@ ggplot() +
   geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
   theme_bw() +
     expand_limits(x = c(0, -20)) +
-  labs(x = "Verschil tussen mannen en vrouwen", title = "Strakke prior en weinig data") +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Strakke prior en weinig data", y = "Density") +
   annotate(geom = "text", x = -5, y = 0.3, 
-           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)")
+           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)") +
+  xlim(c(-20, 20))
 
 
  
@@ -470,9 +493,11 @@ ggplot() +
   geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
   theme_bw() +
    expand_limits(x = c(0, -20)) +
-  labs(x = "Verschil tussen mannen en vrouwen", title = "Goede prior en veel data") +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Goede prior en veel data",
+       y = "Density") +
   annotate(geom = "text", x = -2.5, y = 0.1, 
-           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(-10,5)")
+           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(-10,5)") +
+  xlim(c(-20, 20))
 
 
  
@@ -480,8 +505,6 @@ ggplot() +
 
 
 ```
-
-
 
 # Een beleidsvoorbeeld
 
@@ -504,6 +527,55 @@ ggplot() +
 -   deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
 -   posterior verdeling: $p(\alpha,m|data)$
 -   het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
+
+## Onzekerheid R
+
+```{r}
+
+set.seed(123)
+
+alpha <- 3
+m <- 30000
+N <- 50
+income <- rpareto(N, scale = m, shape = alpha)
+
+df <- tibble(income = income)
+
+# Er is geen pareto familie in brms [see https://github.com/paul-buerkner/brms/issues/1113]. Paul Buerkner zegt: "After giving it some thought, I don't think I want to implement the generalized Pareto distribution in brms. The main reason is that the distributions support is parameter dependent, which makes it very awkward for regression modeling. The only family in brms so far that has variable support is the generalized extreme value distribution, which I consider deprecating for this very reason." Ik heb chatgpt gevraagd naar een alternatief en die zegt dat je een gamma of lognormal verdeling kan gebruiken.
+
+
+
+
+```
+
+```{r}
+# eerst plotje van de data:
+
+# dichtheidsfunctie zie: https://en.wikipedia.org/wiki/Pareto_distribution
+
+pareto_density <- function(x, alpha, m) {
+  ifelse(x >= m, alpha * m^alpha / x^(alpha + 1), 0)
+}
+
+# Maak een tibble met simulatie
+df <- tibble(income = income,
+             log_income = log(income))) # we maken een log transform van de inkomens, zodat we de kijken of dit leidt tot een replicatie van de schatting van Jan.
+
+# Plot
+
+ggplot(df, aes(x = income)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, fill = "steelblue", color = "white") +
+  stat_function(fun = pareto_density, args = list(alpha = alpha, m = m), color = "firebrick", size = 1) +
+  coord_cartesian(xlim = c(m, quantile(income, 0.99))) +
+  labs(title = "Histogram en theoretische Pareto density",
+       x = "Inkomen", y = "") +
+  theme_bw()
+
+
+```
+
+## 
+
 
 ## Onzekerheid
 
