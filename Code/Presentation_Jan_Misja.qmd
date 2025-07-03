@@ -1,6 +1,6 @@
 ---
 title: "Bayesiaanse Beleidsanalyse"
-subtitle: "Iets grappigs te verzinnen"
+
 date: today
 institute: "Tilburg University and University of Twente"
 author: "Jan Boone & Misja Mikkers"
@@ -34,9 +34,6 @@ library(tidybayes) # voor extracting samples
 
 options(scipen = 9999) # Disable scientific notation
 
-# Replicatie analyse Jan in R
-
-library(VGAM) # voor pareto verdeling
 
 
 ```
@@ -64,17 +61,7 @@ B)  Kop en munt zijn nu even plausibel.\
 C)  Beide interpretaties (A en B) zijn logisch.
 :::
 
-::: notes
-**notes**
 
-Deze vraag laat mooi het verschil zien tussen de Frequentistische en Bayesiaanse interpretatie:
-
--   A geeft de Frequentistische uitleg: kans als lange termijn frequentie.
--   B past beter bij de Bayesiaanse uitleg: kans als plausibiliteit gegeven de kennis nu.
--   C laat zien dat je beide benaderingen logisch vindt.
-
-Later gebruiken we deze interpretaties om de verschillende manieren van omgaan met onzekerheid uit te leggen.
-:::
 
 ## Vraag 2
 
@@ -86,13 +73,7 @@ B)  Trump heeft iets meer kans om te winnen dan om te verliezen.\
 C)  Dit slaat nergens op: Trump wint of verliest, de kans is 0 of 1.
 :::
 
-::: notes
-Deze vraag laat zien waarom een Frequentistische interpretatie soms onnatuurlijk aanvoelt:
 
--   A is Frequentistisch gedacht: kans als herhaalbaar experiment.
--   B is typisch Bayesiaans: kans als mate van overtuiging.
--   C wijst kansdenken helemaal af, vanuit een deterministische blik.
-:::
 
 ## Vraag 3
 
@@ -109,11 +90,7 @@ A)  Ik vertrouw meer op Tessa’s claim dan op die van Paul.\
 B)  Het bewijs voor Tessa en Paul is even sterk.
 :::
 
-::: notes
-Frequentistisch kijk je alleen naar het succespercentage: beiden 7 uit 7. Bayesiaans weeg je ook mee wat je vooraf gelooft: mensen herkennen liedjes best vaak, maar een octopus die voetbalwedstrijden voorspelt? Onwaarschijnlijk.
 
-Deze vraag laat zien waarom ‘priors’ belangrijk zijn in Bayesiaans redeneren.
-:::
 
 ## Vraag 4
 
@@ -165,24 +142,9 @@ Tel je punten op:
 | Wat je berekent | $P(\text{data | hypothese})$ | $P(\text{hypothese | data})$  |
 :::
 
-::: notes
-**Uitleg van de tabel**:
 
--   **Kans (P)**:
-    -   Frequentisten zien kans als herhaalde uitkomsten in de lange termijn.
-    -   Bayesians zien kans als een maat van hoe plausibel iets is, gegeven wat je weet.
--   **Focus**:
-    -   Frequentisten kijken naar de spreiding (variabiliteit) van data.
-    -   Bayesians kijken naar onzekerheid en passen kennis aan na nieuwe data.
--   **Informatiebron**:
-    -   Frequentisten baseren zich puur op data.
-    -   Bayesians combineren data met bestaande kennis
--   **Wat je berekent**:
-    -   Frequentisten berekenen: hoe waarschijnlijk is deze data als de hypothese klopt?
-    -   Bayesians berekenen: hoe waarschijnlijk is de hypothese gezien de data die we hebben?
-:::
 
-# Bayesian Learning
+# Bayesian Learning en updating
 
 ## Bayesian Learning
 
@@ -217,6 +179,148 @@ ggplot() +
 ## Bayesian Learning
 
 ![](images/Bayes.png){fig-align="center"}
+
+# Voorbeeld Bayesiaanse updating
+
+## Welk percentage van de aarde is bedekt met water?
+
+```{r}
+# Original dataset and processing
+d <- tibble(toss = c("w", "l", "w", "w", "w", "l", "w", "l", "w"))
+
+d <- d %>%
+  mutate(n_trials  = 1:9,
+         n_success = cumsum(toss == "w"))
+
+sequence_length <- 50
+d <- d %>%
+  expand(nesting(n_trials, toss, n_success),
+         p_water = seq(from = 0, to = 1, length.out = sequence_length)) %>%
+  group_by(p_water) %>%
+  # Use lag() without specifying k
+  mutate(
+    lagged_n_trials  = lag(n_trials, 1),  # Updated usage
+    lagged_n_success = lag(n_success, 1)  # Updated usage
+  ) %>%
+  ungroup() %>%
+  mutate(
+    prior      = ifelse(n_trials == 1, 0.5,
+                        dbinom(x    = lagged_n_success,
+                               size = lagged_n_trials,
+                               prob = p_water)),
+    likelihood = dbinom(x    = n_success,
+                        size = n_trials,
+                        prob = p_water),
+    strip      = str_c("n = ", n_trials)
+  ) %>%
+  # Normalize the prior and the likelihood to make them proper probabilities
+  group_by(n_trials) %>%
+  mutate(
+    prior      = prior / sum(prior, na.rm = TRUE),
+    likelihood = likelihood / sum(likelihood, na.rm = TRUE)
+  )
+
+LABEL <- d %>%
+  group_by(n_trials) %>%
+  summarise(toss = first(toss), strip = first(strip),
+            y_position = max(prior, likelihood, na.rm = TRUE) * 0.85) %>%
+  mutate(Label = case_when(
+    toss == "w" ~ "Water",
+    TRUE ~ "Land"  # Default value if toss is not "w"
+  ))
+```
+
+```{r}
+prior_data <- d %>%
+  filter(n_trials == 1) %>%
+  select(p_water, prior) 
+
+ prior <- ggplot(data = prior_data, aes(x = p_water)) +
+    geom_line(aes(y = prior), linetype = 2, size = 0.8) + # Adjust line size
+    scale_x_continuous("proportion water", breaks = c(0, .5, 1)) +
+    scale_y_continuous("plausibility", breaks = NULL) +
+    theme(panel.grid = element_blank()) +
+    theme_bw(base_size = 10) + 
+     theme(legend.position = "none")
+
+ggsave(prior, filename = "../Figures/prior.png", width = 4, height = 4)
+
+```
+
+![](images/globe.jpg){fig-align="center"}
+
+Example taken from @mcelreath2018statistical
+
+## Tossing the globe {.scrollable}
+
+```{r}
+
+
+# Loop through each trial and create separate plots
+for (i in 1:9) {
+  d_subset <- d %>% filter(n_trials == i)
+  LABEL_subset <- LABEL %>% filter(n_trials == i)
+
+  p <- ggplot(data = d_subset, aes(x = p_water)) +
+    geom_line(aes(y = prior), linetype = 2, size = 0.8) + # Adjust line size
+    geom_line(aes(y = likelihood), size = 0.8) + # Adjust line size
+    scale_x_continuous("proportion water", breaks = c(0, .5, 1)) +
+    scale_y_continuous("plausibility", breaks = NULL) +
+    theme(panel.grid = element_blank()) +
+    facet_wrap(~strip, scales = "free_y", nrow = 1) + # Adjust the number of rows
+    theme_bw(base_size = 10) + 
+    geom_text(data = LABEL_subset,
+              aes(x = 0.15, y = y_position,
+                  label = paste("Toss:", Label), color = Label),
+              vjust = -1, size = 5) +
+    scale_color_manual(values = c("Land" = "darkgreen", "Water" =  "steelblue")) +
+    theme(legend.position = "none")
+
+  # Save each plot as an image with appropriate dimensions
+  ggsave(filename = paste0("../Figures/bayesian_update_plot_n_", i, ".png"), plot = p, width = 6, height = 4)
+}
+
+
+
+```
+
+::: {.absolute-container style="position: relative; width: 100%; height: 100%;"}
+<!-- Prior Plot -->
+
+![](../Figures/prior.png){.absolute .fragment top="10%" left="5%" width="25%" height="25%"}
+
+<!-- Update Plot 1 -->
+
+![](../Figures/bayesian_update_plot_n_1.png){.absolute .fragment top="10%" left="35%" width="25%" height="25%"}
+
+<!-- Update Plot 2 -->
+
+![](../Figures/bayesian_update_plot_n_2.png){.absolute .fragment top="10%" left="65%" width="25%" height="25%"}
+
+<!-- Update Plot 3 -->
+
+![](../Figures/bayesian_update_plot_n_3.png){.absolute .fragment top="40%" left="5%" width="25%" height="25%"}
+
+<!-- Update Plot 4 -->
+
+![](../Figures/bayesian_update_plot_n_4.png){.absolute .fragment top="40%" left="35%" width="25%" height="25%"}
+
+<!-- Update Plot 5 -->
+
+![](../Figures/bayesian_update_plot_n_5.png){.absolute .fragment top="40%" left="65%" width="25%" height="25%"}
+
+<!-- Update Plot 6 -->
+
+![](../Figures/bayesian_update_plot_n_6.png){.absolute .fragment top="70%" left="5%" width="25%" height="25%"}
+
+<!-- Update Plot 7 -->
+
+![](../Figures/bayesian_update_plot_n_7.png){.absolute .fragment top="70%" left="35%" width="25%" height="25%"}
+
+<!-- Update Plot 8 -->
+
+![](../Figures/bayesian_update_plot_n_8.png){.absolute .fragment top="70%" left="65%" width="25%" height="25%"}
+:::
 
 ## Eerste Bayesiaanse analyse: het DGP
 
@@ -296,8 +400,6 @@ ggplot() +
 
 ```
 
-
-
 ## Schatting model met veel data en strakke prior
 
 ```{r}
@@ -325,9 +427,9 @@ model_l <- brm(
             seed = 123,
             silent = TRUE)
 
-saveRDS(model_l, "model_l.rds")
+saveRDS(model_l, "../Data/model_l.rds")
 } else {
- model_l <- readRDS("model_l.rds")}
+ model_l <- readRDS("../Data/model_l.rds")}
 
 
 ```
@@ -417,9 +519,9 @@ model_la <- brm(
             seed = 123,
             silent = TRUE)
 
-saveRDS(model_la, "model_la.rds")
+saveRDS(model_la, "../Data/model_la.rds")
 } else {
- model_la <- readRDS("model_la.rds")}
+ model_la <- readRDS("../Data/model_la.rds")}
 
 
 ```
@@ -474,9 +576,9 @@ model_lb <- brm(
             seed = 123,
             silent = TRUE)
 
-saveRDS(model_lb, "model_lb.rds")
+saveRDS(model_lb, "../Data/model_lb.rds")
 } else {
- model_lb <- readRDS("model_lb.rds")}
+ model_lb <- readRDS("../Data/model_lb.rds")}
 
 
 ```
@@ -528,55 +630,6 @@ ggplot() +
 -   posterior verdeling: $p(\alpha,m|data)$
 -   het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
 
-## Onzekerheid R
-
-```{r}
-
-set.seed(123)
-
-alpha <- 3
-m <- 30000
-N <- 50
-income <- rpareto(N, scale = m, shape = alpha)
-
-df <- tibble(income = income)
-
-# Er is geen pareto familie in brms [see https://github.com/paul-buerkner/brms/issues/1113]. Paul Buerkner zegt: "After giving it some thought, I don't think I want to implement the generalized Pareto distribution in brms. The main reason is that the distributions support is parameter dependent, which makes it very awkward for regression modeling. The only family in brms so far that has variable support is the generalized extreme value distribution, which I consider deprecating for this very reason." Ik heb chatgpt gevraagd naar een alternatief en die zegt dat je een gamma of lognormal verdeling kan gebruiken.
-
-
-
-
-```
-
-```{r}
-# eerst plotje van de data:
-
-# dichtheidsfunctie zie: https://en.wikipedia.org/wiki/Pareto_distribution
-
-pareto_density <- function(x, alpha, m) {
-  ifelse(x >= m, alpha * m^alpha / x^(alpha + 1), 0)
-}
-
-# Maak een tibble met simulatie
-df <- tibble(income = income,
-             log_income = log(income))) # we maken een log transform van de inkomens, zodat we de kijken of dit leidt tot een replicatie van de schatting van Jan.
-
-# Plot
-
-ggplot(df, aes(x = income)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 30, fill = "steelblue", color = "white") +
-  stat_function(fun = pareto_density, args = list(alpha = alpha, m = m), color = "firebrick", size = 1) +
-  coord_cartesian(xlim = c(m, quantile(income, 0.99))) +
-  labs(title = "Histogram en theoretische Pareto density",
-       x = "Inkomen", y = "") +
-  theme_bw()
-
-
-```
-
-## 
-
-
 ## Onzekerheid
 
 -   voor een geven $\alpha, m$, is er een belasting opbrengst (met de niet lineare belasting functie)
@@ -596,12 +649,13 @@ ggplot(df, aes(x = income)) +
 
 ![kans dat de benchmark gehaald wordt](images/probabilities.png)
 
-## andere voorbeelden
+## Andere voorbeelden
 
 -   arbeidsaanbod elasticteit: totale belasting opbrengsten als functie van marginal tarief inkomsten belasting
 -   eigen risico elasticeit: total zorg uitgaven
 -   vraagelasticiteit NS: prijzen treinkaartjes, hoeveel autos op de weg
 -   onzekerheid over de schattingen die niet triviaal vertaald in onzekerheid over beleidsuitkomsten
--   geintegreerde schattingsmethod en scenario analyse
+-   geintegreerde schattingsmethode en scenario analyse
+-   monitoren/leren tijdens een beleidsexperiment \[zoals bijvoorbeeld in Amsterdam-Noord\]
 
 ## Literatuur

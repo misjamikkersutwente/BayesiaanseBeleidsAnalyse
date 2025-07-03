@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-06-23 ma 17:46 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>&lrm;</title>
+<meta name="author" content="Jan Boone" />
+<meta name="generator" content="Org Mode" />
+<style type="text/css">
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="content" class="content">
+<p>
+We consider a situation where the government wants to invest in a public good financed by an income tax. The cost of the project is 18k (per head) and the question is whether the tax raised by a nonlinear income tax schedule will be enough to cover the cost. We estimate the parameters of the (Pareto) income distribution and then see whether the expected tax income exceeds the cost.
+</p>
+
+<p>
+Due to the nonlinearity of the tax scheme, it is hard to propagate the parameter uncertainty into the uncertainty of the tax revenue using a frequentist approach. With a Bayesian analysis this is straightforward to do: we feed the posterior distribution of the parameters into the tax function.
+</p>
+
+<p>
+Another advantage of Bayesian analysis is that one can do a scenario analysis, say the cost of the project can be low, average or high with certain probabilities.
+</p>
+
+<p>
+We first generate a sample from the theoretical income distribution. With this sample of 50 individuals, we will estimate the parameters of our model.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> numpy <span style="color: #531ab6;">as</span> np
+<span style="color: #531ab6;">import</span> pymc <span style="color: #531ab6;">as</span> pm
+<span style="color: #531ab6;">from</span> pymc <span style="color: #531ab6;">import</span> do, observe
+<span style="color: #005e8b;">N</span>=50
+<span style="color: #005e8b;">individuals</span> = np.arange(N)
+
+<span style="color: #531ab6;">with</span> pm.Model(coords={<span style="color: #3548cf;">"individuals"</span>:individuals}) <span style="color: #531ab6;">as</span> model_income:
+    <span style="color: #005e8b;">alpha</span> = pm.HalfNormal(<span style="color: #3548cf;">"alpha"</span>,1)
+    <span style="color: #005e8b;">m</span> = pm.Normal(<span style="color: #3548cf;">"m"</span>,30000,5000)
+    <span style="color: #005e8b;">income</span> = pm.Pareto(<span style="color: #3548cf;">'income'</span>, alpha=alpha, m=m,dims=<span style="color: #3548cf;">"individuals"</span>)
+
+
+<span style="color: #005e8b;">true_values</span> = {
+    <span style="color: #3548cf;">"alpha"</span>: 3.0,
+    <span style="color: #3548cf;">"m"</span>: 30000
+}
+
+<span style="color: #005e8b;">income_simulate</span> = do(model_income, true_values)
+
+<span style="color: #531ab6;">with</span> income_simulate:
+    <span style="color: #005e8b;">simulate</span> = pm.sample_prior_predictive(samples=1)
+
+
+<span style="color: #005e8b;">income_data</span> = simulate.prior.income.values
+<span style="color: #595959;"># </span><span style="color: #595959;">income_data</span>
+</pre>
+</div>
+
+<pre class="example">
+Sampling: [income]
+</pre>
+
+
+
+<p>
+Given the <code>income_data</code>  that we have, the following code block generates the posterior distribution of the parameters \(\alpha,m\).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #005e8b;">model_inference</span> = observe(model_income,\
+                {<span style="color: #3548cf;">"income"</span>:income_data[0,0]})
+
+<span style="color: #531ab6;">with</span> model_inference:
+    <span style="color: #005e8b;">idata</span> = pm.sample(progressbar=<span style="color: #0000b0;">False</span>)
+
+</pre>
+</div>
+
+<pre class="example">
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [alpha, m]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+There were 2808 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
+The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details
+</pre>
+
+
+<p>
+We can view the estimates and the values for <code>r_hat</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> arviz <span style="color: #531ab6;">as</span> az
+<span style="color: #005e8b;">headers</span> = [<span style="color: #3548cf;">'mean'</span>, <span style="color: #3548cf;">'sd'</span>, <span style="color: #3548cf;">'hdi_3%'</span>, <span style="color: #3548cf;">'hdi_97%'</span>,\
+           <span style="color: #3548cf;">'ess_bulk'</span>, <span style="color: #3548cf;">'r_hat'</span>]
+<span style="color: #005e8b;">variables</span> = [<span style="color: #3548cf;">"m"</span>,<span style="color: #3548cf;">"alpha"</span>]
+<span style="color: #005e8b;">df_summary</span> = az.summary(idata,var_names=variables)[headers]
+df_summary
+</pre>
+</div>
+
+<pre class="example">
+            mean       sd     hdi_3%    hdi_97%  ess_bulk  r_hat
+m      29933.492  239.609  29513.609  30166.580     310.0   1.01
+alpha      2.658    0.359      1.963      3.297     564.0   1.00
+</pre>
+
+
+
+<p>
+Next we generate our posterior predictive distribution of income. This is our posterior distribution of the income distribution (with the uncertainty of our parameters incorporated). In other words, this is our best guess of the income distribution that we will use to get an idea of the tax revenues that the government can expect.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #005e8b;">idata_posterior_predictive</span> = pm.sample_posterior_predictive(idata,model=model_inference,progressbar=<span style="color: #0000b0;">False</span>)
+<span style="color: #005e8b;">posterior_predictive_incomes</span> = idata_posterior_predictive.posterior_predictive.income.values
+</pre>
+</div>
+
+<pre class="example">
+Sampling: [income]
+</pre>
+
+
+<p>
+The following code block defines the nonlinear tax function. And we calculate the posterior distribution for the tax revenue.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> pytensor
+<span style="color: #531ab6;">import</span> pytensor.tensor <span style="color: #531ab6;">as</span> pt
+
+
+<span style="color: #531ab6;">def</span> <span style="color: #721045;">piecewise_linear_tax_scalar</span>(income, thresholds, rates):
+    <span style="color: #2a5045;">"""</span>
+<span style="color: #2a5045;">    Calculates the tax for a given income based on a piecewise linear tax function.</span>
+<span style="color: #2a5045;">    This function works for inputs of any dimension due to broadcasting.</span>
+<span style="color: #2a5045;">    """</span>
+    <span style="color: #005e8b;">t1</span>, <span style="color: #005e8b;">t2</span> = thresholds
+    <span style="color: #005e8b;">r1</span>, <span style="color: #005e8b;">r2</span>, <span style="color: #005e8b;">r3</span> = rates
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the first bracket</span>
+    <span style="color: #005e8b;">tax</span> = np.minimum(income, t1) * r1
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the second bracket</span>
+    <span style="color: #005e8b;">tax</span> += np.maximum(0, np.minimum(income, t2) - t1) * r2
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the third bracket</span>
+    <span style="color: #005e8b;">tax</span> += np.maximum(0, income - t2) * r3
+
+    <span style="color: #531ab6;">return</span> tax
+
+<span style="color: #531ab6;">def</span> <span style="color: #721045;">piecewise_linear_tax</span>(income, thresholds, rates):
+    <span style="color: #2a5045;">"""</span>
+<span style="color: #2a5045;">    Calculates the tax for a given income based on a piecewise linear tax function.</span>
+<span style="color: #2a5045;">    This function works for inputs of any dimension due to broadcasting.</span>
+<span style="color: #2a5045;">    """</span>
+    <span style="color: #005e8b;">t1</span>, <span style="color: #005e8b;">t2</span> = thresholds
+    <span style="color: #005e8b;">r1</span>, <span style="color: #005e8b;">r2</span>, <span style="color: #005e8b;">r3</span> = rates
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the first bracket</span>
+    <span style="color: #005e8b;">tax</span> = pt.minimum(income, t1) * r1
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the second bracket</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, pt.minimum(income, t2) - t1) * r2
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the third bracket</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, income - t2) * r3
+
+    <span style="color: #531ab6;">return</span> tax
+
+
+<span style="color: #595959;"># </span><span style="color: #595959;">pt.dtensor3 creates a placeholder for a 3D tensor with double-precision floats.</span>
+<span style="color: #005e8b;">income_tensor_3d</span> = pt.dtensor3(<span style="color: #3548cf;">'income_3d'</span>)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Define the realistic parameters for the Netherlands (2025 system)</span>
+<span style="color: #005e8b;">thresholds</span> = (38441, 76817)
+<span style="color: #005e8b;">rates</span> = (0.3582, 0.3748, 0.4950)
+
+<span style="color: #005e8b;">tax_due_3d</span> = piecewise_linear_tax(income_tensor_3d, thresholds, rates)
+<span style="color: #005e8b;">calculate_tax_3d</span> = pytensor.function(inputs=[income_tensor_3d], outputs=tax_due_3d)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Use the compiled function to calculate the taxes</span>
+<span style="color: #005e8b;">tax_income_per_head</span> = calculate_tax_3d(posterior_predictive_incomes)
+
+tax_income_per_head.shape
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">4</td>
+<td class="org-right">1000</td>
+<td class="org-right">50</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+In a frequentist approach one can calculate the expected tax revenue. This expectation may (or may not) differ significantly from the target of 18k needed to finance the public good. Whether or not it does, what do we learn from this?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python">tax_income_per_head.mean(axis=2).mean(), tax_income_per_head.mean(axis=2).std()
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">18336.024427944103</td>
+<td class="org-right">3549.055002477104</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+The Bayesian approach allows us to quantify the uncertainty. The following figure shows 4 different distributions of the tax revenue. This figure shows that whether or not the mean tax revenue is above or below 18k is hardly relevant.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> matplotlib.pyplot <span style="color: #531ab6;">as</span> plt
+<span style="color: #531ab6;">import</span> seaborn <span style="color: #531ab6;">as</span> sns
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Assuming your tensor is called 'data_tensor'</span>
+<span style="color: #005e8b;">data</span> = tax_income_per_head.mean(axis=2)  <span style="color: #595959;"># </span><span style="color: #595959;">Convert to numpy array if using PyTorch</span>
+
+<span style="color: #531ab6;">for</span> i <span style="color: #531ab6;">in</span> <span style="color: #8f0075;">range</span>(4):
+    sns.kdeplot(data[i, :])
+
+plt.axvline(x=tax_income_per_head.mean(), color=<span style="color: #3548cf;">'black'</span>, linestyle=<span style="color: #3548cf;">'--'</span>,label=<span style="color: #3548cf;">"expected tax revenue per head"</span>)  <span style="color: #595959;"># </span><span style="color: #595959;">Add vertical line</span>
+<span style="color: #595959;"># </span><span style="color: #595959;">plt.axvline(x=piecewise_linear_tax_scalar(posterior_predictive_incomes.mean(),thresholds,rates), color='blue', linestyle=':',label="tax of expected income per head")  # </span>
+plt.legend()
+plt.xlim(0,50000)
+plt.xlabel(<span style="color: #3548cf;">"tax revenue per head"</span>)
+plt.suptitle(<span style="color: #3548cf;">'Four posterior distributions of tax revenue per head'</span>)
+plt.tight_layout();
+
+</pre>
+</div>
+
+
+<div id="orgb8f8bf8" class="figure">
+<p><img src="./figures/average_tax_income_distributions.png" alt="average_tax_income_distributions.png" />
+</p>
+</div>
+
+
+<p>
+With the Bayesian approach we can answer the question: how likely is it that tax revenue falls below the 18k threshold:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #005e8b;">threshold</span> = 18000
+<span style="color: #8f0075;">print</span>(data.mean())
+<span style="color: #8f0075;">print</span>(np.mean(data &lt; threshold))
+</pre>
+</div>
+
+<pre class="example">
+18336.024427944103
+0.57575
+</pre>
+
+
+
+<p>
+We can make a graph to show how the probability of earning enough tax revenues varies with the top tax rate that we use.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #531ab6;">import</span> pytensor
+<span style="color: #531ab6;">import</span> pytensor.tensor <span style="color: #531ab6;">as</span> pt
+<span style="color: #531ab6;">import</span> numpy <span style="color: #531ab6;">as</span> np
+
+<span style="color: #531ab6;">def</span> <span style="color: #721045;">calculate_revenue_for_top_rates</span>(income_tensor, top_rates_var, thresholds, base_rates):
+    <span style="color: #2a5045;">"""</span>
+<span style="color: #2a5045;">    Calculates the total tax revenue for a tensor of incomes across a vector of</span>
+<span style="color: #2a5045;">    variable top tax rates.</span>
+<span style="color: #2a5045;">    """</span>
+    <span style="color: #005e8b;">t1</span>, <span style="color: #005e8b;">t2</span> = thresholds
+    <span style="color: #005e8b;">r1</span>, <span style="color: #005e8b;">r2</span> = base_rates
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">--- Broadcasting ---</span>
+    <span style="color: #005e8b;">income</span> = income_tensor.dimshuffle(<span style="color: #3548cf;">'x'</span>, 0, 1, 2)
+    <span style="color: #005e8b;">top_rates_reshaped</span> = top_rates_var.dimshuffle(0, <span style="color: #3548cf;">'x'</span>, <span style="color: #3548cf;">'x'</span>, <span style="color: #3548cf;">'x'</span>)
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">--- Tax Calculation with Broadcasting ---</span>
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the first bracket. This part is constant for all top rates.</span>
+    <span style="color: #005e8b;">tax</span> = pt.minimum(income, t1) * r1
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the second bracket. Also constant.</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, pt.minimum(income, t2) - t1) * r2
+
+    <span style="color: #595959;"># </span><span style="color: #595959;">Tax for the third bracket. This is where the broadcasting happens.</span>
+    <span style="color: #005e8b;">tax</span> += pt.maximum(0, income - t2) * top_rates_reshaped
+
+    <span style="color: #531ab6;">return</span> tax
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 1: Define symbolic tensors ---</span>
+
+<span style="color: #005e8b;">income_tensor_3d</span> = pt.dtensor3(<span style="color: #3548cf;">'income_3d'</span>)
+<span style="color: #595959;"># </span><span style="color: #595959;">A vector for the variable top tax rates</span>
+<span style="color: #005e8b;">top_rates_vector</span> = pt.dvector(<span style="color: #3548cf;">'top_rates'</span>)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 2: Define fixed and variable parameters ---</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Fixed parameters</span>
+<span style="color: #005e8b;">thresholds</span> = (38441, 76817)
+<span style="color: #005e8b;">base_rates</span> = (0.3582, 0.3748) <span style="color: #595959;"># </span><span style="color: #595959;">r1 and r2</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Variable parameter: A range of top tax rates (r3) to test</span>
+<span style="color: #005e8b;">top_rates_range</span> = np.linspace(0.45, 0.95, num=20) <span style="color: #595959;"># </span><span style="color: #595959;">Test 20 rates from 45% to 95%</span>
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 3: Build the computation graph ---</span>
+<span style="color: #005e8b;">revenue_graph</span> = calculate_revenue_for_top_rates(
+    income_tensor_3d,
+    top_rates_vector,
+    thresholds,
+    base_rates
+)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">--- Step 4: Compile the graph into a callable Python function ---</span>
+<span style="color: #005e8b;">calculate_revenue</span> = pytensor.function(
+    inputs=[income_tensor_3d, top_rates_vector],
+    outputs=revenue_graph
+)
+
+<span style="color: #595959;"># </span><span style="color: #595959;">Use the compiled function to calculate the revenues</span>
+<span style="color: #005e8b;">calculated_revenues</span> = calculate_revenue(posterior_predictive_incomes, top_rates_range)
+
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #005e8b;">data</span> = calculated_revenues.mean(axis=3)
+<span style="color: #005e8b;">probabilities</span> = np.mean(data &gt;= threshold,axis=(1,2))
+</pre>
+</div>
+
+<p>
+The following figure shows how the probability of being able to finance the public good varies with the top tax rate. The higher this tax rate, the higher the probability that we generate enough tax revenues to cover the public good.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python">plt.plot(top_rates_range,probabilities)
+plt.xlabel(<span style="color: #3548cf;">'top tax rate'</span>)
+plt.ylabel(<span style="color: #3548cf;">'probability'</span>)
+plt.title(<span style="color: #3548cf;">'Probability that enough tax revenue is raised to pay for public good'</span>);
+</pre>
+</div>
+
+
+<div id="org4ab058a" class="figure">
+<p><img src="./figures/probabilities.png" alt="probabilities.png" />
+</p>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Jan Boone</p>
+<p class="date">Created: 2025-06-23 ma 17:46</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
