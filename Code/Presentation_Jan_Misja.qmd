@@ -452,7 +452,9 @@ ggplot() +
   expand_limits(x = c(0, -20)) +
   labs(x = "Verschil tussen mannen en vrouwen", title = "model met veel data en strakke prior", y = "Density") +
   annotate(geom = "text", x = -5, y = 7, 
-           label = "n = 200.000\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)")
+           label = "n = 200.000\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)") +
+  xlim(c(-20, 20))
+
 
  
 
@@ -496,6 +498,15 @@ ggplot() +
 ## Resultaat
 
 ```{r}
+
+
+df_la_wide <- df_la %>%
+  group_by(Geslacht) %>%
+  mutate(id = row_number()) %>%
+  pivot_wider(names_from = Geslacht, values_from = Lengte) %>%
+  mutate(Verschil = Vrouwen - Mannen) 
+  
+
 fullrun <- 0
 
 
@@ -535,10 +546,13 @@ samples_la <- tidy_draws(model_la, "^b") %>%
 ggplot() +
   geom_density(data = samples_la, aes(x = Vrouwen), 
                fill = "firebrick", alpha = 0.5) +
-  geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
-  theme_bw() +
-    expand_limits(x = c(0, -20)) +
-  labs(x = "Verschil tussen mannen en vrouwen", title = "Strakke prior en weinig data", y = "Density") +
+  geom_vline(xintercept = 167 - 181, color = "firebrick", linetype = "dashed") +
+  geom_vline(xintercept = mean(df_la_wide$Verschil), color = "steelblue", linetype = "dashed") +
+   annotate("text", x = 167 - 181, y = 0.25, label = "Echte verschil", angle = 90, vjust = -0.5, color = "firebrick") +
+  annotate("text", x = mean(df_la_wide$Verschil), y = 0.25, label = "Gemiddelde verschil in data", angle = 90, vjust = 1, color = "steelblue") +
+  annotate("text", x = 167 - 181, y = 0.25, label = "Echte verschil", angle = 90, vjust = -0.5, color = "firebrick") +
+    theme_bw() +
+    labs(x = "Verschil tussen mannen en vrouwen", title = "Strakke prior en weinig data", y = "Density") +
   annotate(geom = "text", x = -5, y = 0.3, 
            label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,1)") +
   xlim(c(-20, 20))
@@ -553,6 +567,9 @@ ggplot() +
 ## Schatting model met kleine sample size en betere prior
 
 ```{r}
+
+
+
 fullrun <- 0
 
 
@@ -581,10 +598,6 @@ saveRDS(model_lb, "../Data/model_lb.rds")
  model_lb <- readRDS("../Data/model_lb.rds")}
 
 
-```
-
-```{r}
-
 samples_lb <- tidy_draws(model_lb, "^b") %>%
   dplyr::select(starts_with("b_")) %>%
   dplyr::select(Vrouwen = b_GeslachtVrouwen) 
@@ -592,21 +605,107 @@ samples_lb <- tidy_draws(model_lb, "^b") %>%
 ggplot() +
   geom_density(data = samples_lb, aes(x = Vrouwen), 
                fill = "firebrick", alpha = 0.5) +
-  geom_vline(xintercept = 169.1 - 181.9, color = "firebrick", linetype = "dashed") +
+  geom_vline(xintercept = 167 - 181, color = "firebrick", linetype = "dashed") +
+  geom_vline(xintercept = mean(df_la_wide$Verschil), color = "steelblue", linetype = "dashed") +
   theme_bw() +
-   expand_limits(x = c(0, -20)) +
-  labs(x = "Verschil tussen mannen en vrouwen", title = "Goede prior en veel data",
-       y = "Density") +
-  annotate(geom = "text", x = -2.5, y = 0.1, 
+     annotate("text", x = 167 - 181, y = 0.22, label = "Echte verschil", angle = 90, vjust = -0.5, color = "firebrick") +
+  annotate("text", x = mean(df_la_wide$Verschil), y = 0.22, label = "Gemiddelde verschil in data", angle = 90, vjust = 1, color = "steelblue") +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Goede prior en weinig data", y = "Density") +
+  annotate(geom = "text", x = 0, y = 0.25, 
            label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(-10,5)") +
-  xlim(c(-20, 20))
+  xlim(c(-20, 20)) +
+  ylim(0,0.3)
 
-
- 
 
 
 
 ```
+
+## Met nulhypothese
+
+
+
+
+```{r}
+
+fullrun <- 0
+
+
+Formula <- Lengte ~ 0 + Intercept + Geslacht
+    
+prior1 <- c(set_prior("normal(175, 20)", class = "b", coef = "Intercept"),
+            set_prior("normal(0,5)", class = "b", coef = "GeslachtVrouwen"))    
+
+if(fullrun){
+  
+
+model_null <- brm(
+            formula = Formula,
+            prior = prior1,
+            data   = df_la,
+            warmup = 500, 
+            iter   = 1500, 
+            chains = 4, 
+            init  = "random",
+            cores  = 2,
+            seed = 123,
+            silent = TRUE)
+
+saveRDS(model_null, "../Data/model_null.rds")
+} else {
+ model_null <- readRDS("../Data/model_null.rds")}
+
+
+
+samples_null <- tidy_draws(model_null, "^b") %>%
+  dplyr::select(starts_with("b_")) %>%
+  dplyr::select(Vrouwen = b_GeslachtVrouwen) 
+  
+
+```
+
+
+```{r}
+
+
+# Dataframe voor de prior
+prior_df <- tibble(
+  x = seq(-60, 60, length.out = 500),
+  y = dnorm(x, mean = 0, sd = 5)
+)
+
+ggplot() +
+  # Prior (als dichtheidsvlak)
+  geom_area(data = prior_df, aes(x = x, y = y, fill = "Prior"),color = "grey50", alpha = 0.3) +
+  
+  # Posterior (uit samples)
+  geom_density(data = samples_null, aes(x = Vrouwen, fill = "Posterior"), alpha = 0.5) +
+  
+  # Verschil in data
+  geom_density(data = df_la_wide, aes(x = Vrouwen - Mannen, fill = "Data"), alpha = 0.5) +
+  geom_vline(xintercept = 167 - 181, color = "firebrick", linetype = "dashed") +
+  geom_vline(xintercept = mean(df_la_wide$Verschil), color = "steelblue", linetype = "dashed") +
+   annotate("text", x = 167 - 181, y = 0.2, label = "Echte verschil", angle = 90, vjust = -0.5, color = "firebrick") +
+  annotate("text", x = mean(df_la_wide$Verschil), y = 0.2, label = "Gemiddelde verschil in data", angle = 90, vjust = 1, color = "steelblue") +
+  
+  scale_fill_manual(values = c(
+    "Prior" = "gold", 
+    "Posterior" = "firebrick", 
+    "Data" = "steelblue"
+  )) +
+  labs(x = "Verschil tussen mannen en vrouwen", title = "Nul hypothese", y = "Density", fill = " ") +
+  annotate(geom = "text", x = 10, y = 0.2, 
+           label = "n = 20\n priors\n lengte : normal(175, 20)\n verschil m/v normal(0,5)") +
+  theme_bw() +
+xlim(-40, 40) +
+  ylim(0,0.3)
+
+
+
+
+```
+
+
 
 # Een beleidsvoorbeeld
 
