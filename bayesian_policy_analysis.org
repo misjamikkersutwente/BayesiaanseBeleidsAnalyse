@@ -30,8 +30,9 @@ true_values = {
 
 income_simulate = do(model_income, true_values)
 
+rng = np.random.default_rng(123)
 with income_simulate:
-    simulate = pm.sample_prior_predictive(samples=1)
+    simulate = pm.sample_prior_predictive(samples=1,random_seed=rng)
 
 
 income_data = simulate.prior.income.values
@@ -42,6 +43,23 @@ income_data = simulate.prior.income.values
 : Sampling: [income]
 
 
+
+#+begin_src jupyter-python :file ./figures/income_distribution.png
+import matplotlib.pyplot as plt
+from scipy.stats import pareto
+plt.hist(income_data[0,0,:],bins=20,density=True)
+x = np.linspace(30000,160000, 100)
+plt.plot(x, 3.0*30000**3.0/x**(3.0+1),label='pareto pdf',c='r',lw=3.0)
+plt.title("Sample of 50 incomes and the Pareto pdf")
+plt.xlabel("income")
+plt.ylabel('density')
+plt.legend();
+#+end_src
+
+#+RESULTS:
+[[file:./figures/income_distribution.png]]
+
+
 Given the =income_data=  that we have, the following code block generates the posterior distribution of the parameters $\alpha,m$.
 
 #+begin_src jupyter-python
@@ -49,7 +67,7 @@ model_inference = observe(model_income,\
                 {"income":income_data[0,0]})
 
 with model_inference:
-    idata = pm.sample(progressbar=False)
+    idata = pm.sample(progressbar=False,random_seed=rng)
 
 #+end_src
 
@@ -57,9 +75,8 @@ with model_inference:
 : Initializing NUTS using jitter+adapt_diag...
 : Multiprocess sampling (4 chains in 4 jobs)
 : NUTS: [alpha, m]
-: Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
-: There were 2808 divergences after tuning. Increase `target_accept` or reparameterize.
-: The rhat statistic is larger than 1.01 for some parameters. This indicates problems during sampling. See https://arxiv.org/abs/1903.08008 for details
+: Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
+: There were 2865 divergences after tuning. Increase `target_accept` or reparameterize.
 : The effective sample size per chain is smaller than 100 for some parameters.  A higher number is needed for reliable rhat and ess computation. See https://arxiv.org/abs/1903.08008 for details
 
 We can view the estimates and the values for =r_hat=.
@@ -75,8 +92,8 @@ df_summary
 
 #+RESULTS:
 :             mean       sd     hdi_3%    hdi_97%  ess_bulk  r_hat
-: m      29933.492  239.609  29513.609  30166.580     310.0   1.01
-: alpha      2.658    0.359      1.963      3.297     564.0   1.00
+: m      29882.069  230.470  29480.789  30110.355     385.0   1.01
+: alpha      2.403    0.321      1.775      2.971     614.0   1.00
 
 
 Next we generate our posterior predictive distribution of income. This is our posterior distribution of the income distribution (with the uncertainty of our parameters incorporated). In other words, this is our best guess of the income distribution that we will use to get an idea of the tax revenues that the government can expect.
@@ -162,7 +179,7 @@ tax_income_per_head.mean(axis=2).mean(), tax_income_per_head.mean(axis=2).std()
 #+end_src
 
 #+RESULTS:
-| 18336.024427944103 | 3549.055002477104 |
+| 19857.137479352594 | 4370.267847121025 |
 
 The Bayesian approach allows us to quantify the uncertainty. The following figure shows 4 different distributions of the tax revenue. This figure shows that whether or not the mean tax revenue is above or below 18k is hardly relevant.
 
@@ -199,8 +216,8 @@ print(np.mean(data < threshold))
 #+end_src
 
 #+RESULTS:
-: 18336.024427944103
-: 0.57575
+: 19857.137479352594
+: 0.389
 
 
 We can make a graph to show how the probability of earning enough tax revenues varies with the top tax rate that we use.
@@ -276,6 +293,8 @@ calculated_revenues = calculate_revenue(posterior_predictive_incomes, top_rates_
 data = calculated_revenues.mean(axis=3)
 probabilities = np.mean(data >= threshold,axis=(1,2))
 #+end_src
+
+#+RESULTS:
 
 The following figure shows how the probability of being able to finance the public good varies with the top tax rate. The higher this tax rate, the higher the probability that we generate enough tax revenues to cover the public good.
 

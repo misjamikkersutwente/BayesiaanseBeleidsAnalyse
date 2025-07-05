@@ -150,14 +150,19 @@ nieuwe prior + data = nieuwere prior
 
 - we hebben sample gegenereerd van een Pareto inkomens verdeling
 - met sample hebben we de parameters van deze verdeling geschat
-- deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
-- posterior verdeling: $p(\alpha,m|data)$
-- het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
+
+![verdeling inkomens in sample](../figures/income_distribution.png)
+
 
 ## Onzekerheid
 
+- deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
+- posterior verdeling: $p(\alpha,m|data)$
+- het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
 - voor een geven $\alpha, m$, is er een belasting opbrengst (met de niet lineare belasting functie)
 - voor 4000 $\alpha, m$ is er een verdeling van deze belasting opbrengt
+
+## Verdeling van belasting opbrengsten
 
 ![verdeling belasting opbrengst](../figures/average_tax_income_distribution.png)
 
@@ -166,8 +171,8 @@ nieuwe prior + data = nieuwere prior
 - stel de verwachte belasting opbrengst is 17k (per capita)
 - is dit significant verschil met benchmark 18k?
 - is helemaal niet relevant voor beleidsanalyse
-- Bayesiaan: verwachte belasting opbrengst is 18,336k
-- kans dat de threshold niet gehaald wordt is 58%
+- Bayesiaan: verwachte belasting opbrengst is 19875
+- kans dat de threshold niet gehaald wordt is 40%
 
 ## Wat is een goede keuze voor het top marginal tarief
 
@@ -179,5 +184,6 @@ nieuwe prior + data = nieuwere prior
 - arbeidsaanbod elasticteit: totale belasting opbrengsten als functie van marginal tarief inkomsten belasting
 - eigen risico elasticeit: total zorg uitgaven
 - vraagelasticiteit NS: prijzen treinkaartjes, hoeveel autos op de weg
+- efficientie winsten van een fusie: leidt fusie tot welvaartsverhoging
 - onzekerheid over de schattingen die niet triviaal vertaald in onzekerheid over beleidsuitkomsten
 - geintegreerde schattingsmethod en scenario analyse
