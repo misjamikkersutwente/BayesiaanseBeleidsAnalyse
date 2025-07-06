@@ -61,8 +61,6 @@ B)  Kop en munt zijn nu even plausibel.\
 C)  Beide interpretaties (A en B) zijn logisch.
 :::
 
-
-
 ## Vraag 2
 
 ::: {style="font-size: 0.8em;"}
@@ -72,8 +70,6 @@ A)  Als we de verkiezingen 100 keer zouden houden, wint Trump 51 keer.\
 B)  Trump heeft iets meer kans om te winnen dan om te verliezen.\
 C)  Dit slaat nergens op: Trump wint of verliest, de kans is 0 of 1.
 :::
-
-
 
 ## Vraag 3
 
@@ -89,8 +85,6 @@ Wat denk jij?
 A)  Ik vertrouw meer op Tessa’s claim dan op die van Paul.\
 B)  Het bewijs voor Tessa en Paul is even sterk.
 :::
-
-
 
 ## Vraag 4
 
@@ -141,8 +135,6 @@ Tel je punten op:
 | Informatiebron  | Data                         | Data + voorkennis (‘priors’)  |
 | Wat je berekent | $P(\text{data | hypothese})$ | $P(\text{hypothese | data})$  |
 :::
-
-
 
 # Bayesian Learning en updating
 
@@ -623,9 +615,6 @@ ggplot() +
 
 ## Met nulhypothese
 
-
-
-
 ```{r}
 
 fullrun <- 0
@@ -663,7 +652,6 @@ samples_null <- tidy_draws(model_null, "^b") %>%
   
 
 ```
-
 
 ```{r}
 
@@ -705,8 +693,6 @@ xlim(-40, 40) +
 
 ```
 
-
-
 # Een beleidsvoorbeeld
 
 ## In de praktijk: onzekerheid over beleidsanalyse
@@ -723,11 +709,23 @@ xlim(-40, 40) +
 
 ## Simulatie
 
--   we hebben sample gegenereerd van een Pareto inkomens verdeling
--   met sample hebben we de parameters van deze verdeling geschat
--   deze geschatte parameters $\alpha, m$ hebben een verdeling gegeven de data
+![](images/income_distribution.png){fig-align="center"}
+
+::: {style="font-size: 0.4em;"}
+
+-   de geschatte parameters $\alpha, m$ van de Pareto verdeling hebben een verdeling gegeven de data
+
 -   posterior verdeling: $p(\alpha,m|data)$
+
 -   het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
+
+:::
+
+::: notes
+-   we hebben sample gegenereerd van een Pareto inkomens verdeling
+
+-   met sample hebben we de parameters van deze verdeling geschat
+:::
 
 ## Onzekerheid
 
@@ -750,11 +748,13 @@ xlim(-40, 40) +
 
 ## Andere voorbeelden
 
+::: {style="font-size: 0.8em;"}
 -   arbeidsaanbod elasticteit: totale belasting opbrengsten als functie van marginal tarief inkomsten belasting
 -   eigen risico elasticeit: total zorg uitgaven
 -   vraagelasticiteit NS: prijzen treinkaartjes, hoeveel autos op de weg
 -   onzekerheid over de schattingen die niet triviaal vertaald in onzekerheid over beleidsuitkomsten
 -   geintegreerde schattingsmethode en scenario analyse
 -   monitoren/leren tijdens een beleidsexperiment \[zoals bijvoorbeeld in Amsterdam-Noord\]
+:::
 
 ## Literatuur
