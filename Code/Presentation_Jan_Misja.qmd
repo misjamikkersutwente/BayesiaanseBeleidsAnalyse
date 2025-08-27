@@ -76,7 +76,7 @@ C)  Dit slaat nergens op: Trump wint of verliest, de kans is 0 of 1.
 ::: {style="font-size: 0.8em;"}
 We laten 2 statements zien:
 
-1.  Tessa zegt dat ze elk liedje van Taylor Swift binnen een paar tonen kan herkennen. Ze wordt getest: 7 liedjes, 7 keer goed.
+1.  Tessa zegt dat ze elk liedje van Taylor Swift binnen 30 seconden kan herkennen. Ze wordt getest: 7 liedjes, 7 keer goed.
 
 2.  Paul de Octopus voorspelde in 2010 de uitslag van alle 7 WK-wedstrijden van Duitsland correct.
 
@@ -241,7 +241,7 @@ ggsave(prior, filename = "../Figures/prior.png", width = 4, height = 4)
 
 ![](images/globe.jpg){fig-align="center"}
 
-Example taken from @mcelreath2018statistical
+Het voorbeeld is ontleend aan @mcelreath2018statistical
 
 ## Tossing the globe {.scrollable}
 
@@ -712,13 +712,11 @@ xlim(-40, 40) +
 ![](images/income_distribution.png){fig-align="center"}
 
 ::: {style="font-size: 0.4em;"}
-
 -   de geschatte parameters $\alpha, m$ van de Pareto verdeling hebben een verdeling gegeven de data
 
 -   posterior verdeling: $p(\alpha,m|data)$
 
 -   het algoritme sampled van deze verdeling: er zijn 4000 $\alpha$ and $m$ (4 keer 1000 samples)
-
 :::
 
 ::: notes
