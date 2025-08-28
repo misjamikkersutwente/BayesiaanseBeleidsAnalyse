@@ -241,7 +241,7 @@ ggsave(prior, filename = "../Figures/prior.png", width = 4, height = 4)
 
 ![](images/globe.jpg){fig-align="center"}
 
-Het voorbeeld is ontleend aan @mcelreath2018statistical
+Voorbeeld uit @mcelreath2018statistical
 
 ## Tossing the globe {.scrollable}
 
